@@ -1,3 +1,5 @@
+import org.junit.Test;
+
 /**
  * @Classname Test2
  * @Description TODO
@@ -6,7 +8,11 @@
  */
 public class Test2 {
     public static void main(String[] args) {
+
         System.out.println("git 回退测试" );
     }
+    @Test
+    public void test(){
 
+    }
 }
