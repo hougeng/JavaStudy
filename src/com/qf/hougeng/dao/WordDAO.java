@@ -1,8 +1,10 @@
 package com.qf.hougeng.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import com.qf.hougeng.bean.Word;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.time.chrono.JapaneseEra.values;
 
@@ -32,4 +34,72 @@ public class WordDAO {
 //        执行sql
         preparedStatement.executeUpdate();
     }
+    /*
+通过对象传值来插入数据
+ */
+    public void add(Word word) throws SQLException {
+//        定义一个sql的预编译语法
+        String sql = "insert into word(id,english,chinese,type,comm) values (?,?,?,?,?)";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        int index=1;
+//        给预编译参数进行传值
+        preparedStatement.setObject(index++,word.getId());
+        preparedStatement.setObject(index++,word.getEnglish());
+        preparedStatement.setObject(index++,word.getChinese());
+        preparedStatement.setObject(index++,word.getType());
+        preparedStatement.setObject(index++,word.getComm());
+//      执行sql
+        preparedStatement.executeUpdate();
+    }
+
+
+
+    /*
+    定义一个方法,通过英文得到中文
+     */
+    public String getChineseByEng(String english) throws SQLException {
+        String sql = "select chinese from word where english=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+//       给preparestatement传参
+        preparedStatement.setObject(1,english);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            return resultSet.getObject(1).toString();
+        }
+        return null;
+    }
+    /*
+定义一个方法,从数据库表中拿出对象,放入到Word对象中,最后以List方式返回
+ */
+    public List<Word> getList() {
+        List<Word> list = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select * from word");
+            while (resultSet.next()) {
+                Word word=new Word();
+                word.setId(resultSet.getInt(1));
+                word.setEnglish(resultSet.getString(2));
+                word.setChinese(resultSet.getString(3));
+                word.setType(resultSet.getString("type"));
+                word.setComm(resultSet.getString("comm"));
+                list.add(word);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+//定义删除方法
+    public void delete(int id) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("delete from word where id=?");
+            preparedStatement.setObject(1,id);
+            int i = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
